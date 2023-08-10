@@ -1,6 +1,7 @@
 package cn.cjj.demo.java8;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +17,7 @@ public class StreamDemo {
     }
 
     public static void main(String[] args) {
-        join();
+        distinct();
     }
 
     /**
@@ -28,13 +29,13 @@ public class StreamDemo {
             System.out.println(student.getGrade());
         }
         //按年级升序排序
-        List<Student> afeter = list.stream().sorted(Comparator.comparing(Student::getGrade)).collect(Collectors.toList());
+        List<Student> after = list.stream().sorted(Comparator.comparing(Student::getGrade)).collect(Collectors.toList());
 
         System.out.println("升序排序后：");
-        for (Student student : afeter) {
+        for (Student student : after) {
             System.out.println(student.getGrade());
         }
-        return afeter;
+        return after;
     }
 
     /**
@@ -46,13 +47,13 @@ public class StreamDemo {
             System.out.println(student.getGrade());
         }
         //按年级升序排序
-        List<Student> afeter = list.stream().sorted(Comparator.comparing(Student::getGrade).reversed()).collect(Collectors.toList());
+        List<Student> after = list.stream().sorted(Comparator.comparing(Student::getGrade).reversed()).collect(Collectors.toList());
 
         System.out.println("降序排序后：");
-        for (Student student : afeter) {
+        for (Student student : after) {
             System.out.println(student.getGrade());
         }
-        return afeter;
+        return after;
     }
 
 
@@ -98,9 +99,12 @@ public class StreamDemo {
 
     public static void sum() {
 
-        Double score = list.stream().collect(Collectors.summingDouble(Student::getScore));
+        Double sum = list.stream().collect(Collectors.summingDouble(Student::getScore));
+        //或者
+        Double sum2 = list.stream().map(Student::getScore).reduce(Double::sum).orElse(0.0);
 
-        System.out.println("分数总和：" + score);
+        System.out.println("求和1：" + sum);
+        System.out.println("求和2：" + sum2);
 
     }
 
@@ -116,9 +120,9 @@ public class StreamDemo {
             System.out.println(student.getScore());
         }
 
-        Double score = list.stream().collect(Collectors.averagingDouble(Student::getScore));
+        Double avg = list.stream().collect(Collectors.averagingDouble(Student::getScore));
 
-        System.out.println("平均分数：" + score);
+        System.out.println("平均分数：" + avg);
 
     }
 
@@ -126,7 +130,7 @@ public class StreamDemo {
     /**
      * 6.对列表元素筛选
      */
-    public static void select() {
+    public static void filter() {
 
         System.out.println("筛选前：");
         for (Student student : list) {
@@ -141,7 +145,7 @@ public class StreamDemo {
     }
 
     /**
-     * 6.查找列表元素某一属性的最大值的元素
+     * 6.查找列表元素某一属性的最大/最小值的元素
      */
     public static void maxOrMin() {
 
@@ -155,6 +159,13 @@ public class StreamDemo {
 
         System.out.println("最高分数：" + student.getScore());
         System.out.println("最低分数：" + student2.getScore());
+
+        //或者
+        Double max = list.stream().map(Student::getScore).reduce(Double::max).get();
+        Double min = list.stream().map(Student::getScore).reduce(Double::min).get();
+
+        System.out.println("最高分数2：" + max);
+        System.out.println("最低分数2：" + min);
     }
 
     /**
@@ -162,7 +173,7 @@ public class StreamDemo {
      */
     public static void forEach() {
 
-        list.stream().forEach(student -> System.out.println(student.getId()));
+        list.stream().forEach(each -> System.out.println(each.getId()));
 
     }
 
@@ -172,7 +183,7 @@ public class StreamDemo {
     public static void distinct() {
 
         System.out.println("学生年龄去重前：");
-        list.stream().sorted(((stu1, stu2) -> stu1.getAge() - stu2.getAge())).forEach(student -> System.out.println(student.getAge()));
+        list.stream().sorted(Comparator.comparing(Student::getAge)).forEach(student -> System.out.println(student.getAge()));
 
         List<Integer> ages = list.stream().map(Student::getAge).collect(Collectors.toList());
 
@@ -189,6 +200,26 @@ public class StreamDemo {
         String result = list.stream().map(student -> student.getId().toString()).collect(Collectors.joining(","));
         System.out.println("将所有的学生id用逗号拼接起来：");
         System.out.println(result);
+    }
+
+
+    /**
+     * 10.将list转成map
+     */
+    public static void toMap() {
+        //将学生id转成map的key，Student对象转成map的value
+        Map<Integer, Student> map = list.stream().collect(Collectors.toMap(Student::getId, Function.identity()));
+
+        //将学生的id转成map的key，age转成map的value
+        Map<Integer, Integer> collect = list.stream().collect(Collectors.toMap(Student::getId, Student::getAge));
+    }
+
+    /**
+     * 11.将list转成set
+     */
+    public static void toSet() {
+        //将列表转成id集合
+        Set<Integer> set = list.stream().map(Student::getId).collect(Collectors.toSet());
     }
 
 
@@ -215,9 +246,7 @@ public class StreamDemo {
         return list;
     }
 
-    /**
-     * 内部类
-     */
+
     private static class Student {
         private Integer id;
         private String name;

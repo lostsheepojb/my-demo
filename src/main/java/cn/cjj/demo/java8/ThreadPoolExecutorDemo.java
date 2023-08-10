@@ -31,10 +31,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *                     DiscardOldestPolicy（丢弃队列最前面的任务，然后加入队列）、
  *                     CallerRunsPolicy（由调用线程（即提交任务给线程池的线程）处理该任务）
  * <p>
- * tip1：可通过Executors工具类快速创建线程池，但不建议使用，因为该工具类的参数设置有导致内存溢出的风险
+ *
+ * tip1：可通过Executors工具类快速创建线程池，但不建议使用，因为该工具类的参数设置使用无界队列，有导致内存溢出的风险
  * tip2：核心线程数量设置建议，IO密集型任务核心线程数 = CPU核数的两倍、CPU密集型任务核心线程数 = CPU的核心数。
  **/
-public class ThreadPoolDemo {
+public class ThreadPoolExecutorDemo {
 
     /**
      * CPU核数
@@ -54,7 +55,9 @@ public class ThreadPoolDemo {
      */
     public static ThreadPoolExecutor createThreadPool() {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(IO_MAX, IO_MAX, 10, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(10), new MyThreadFactory("myPool"), new ThreadPoolExecutor.AbortPolicy());
+                new ArrayBlockingQueue<>(10),
+                new MyThreadFactory("myPool"),
+                new ThreadPoolExecutor.AbortPolicy());
         return threadPoolExecutor;
     }
 
